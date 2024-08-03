@@ -40,6 +40,7 @@ public class UserControllerTest {
         ValidationException exception = assertThrows(ValidationException.class, () -> userController.create(user));
         assertTrue(exception.getMessage().contains("Электронная почта должна содержать символ @"));
     }
+
     @Test
     void createWithInvalidEmailThrowsValidationExceptionisBlank() {
         User user = new User();
@@ -49,6 +50,7 @@ public class UserControllerTest {
         ValidationException exception = assertThrows(ValidationException.class, () -> userController.create(user));
         assertTrue(exception.getMessage().contains("Электронная почта не может быть пустой"));
     }
+
     @Test
     void createWithInvalidLoginThrowsValidationException() {
         User user = new User();
@@ -58,6 +60,7 @@ public class UserControllerTest {
         ValidationException exception = assertThrows(ValidationException.class, () -> userController.create(user));
         assertTrue(exception.getMessage().contains("Логин не может быть пустым и содержать пробелы"));
     }
+
     @Test
     void createWithInvalidLoginisBlankThrowsValidationException() {
         User user = new User();
@@ -67,6 +70,7 @@ public class UserControllerTest {
         ValidationException exception = assertThrows(ValidationException.class, () -> userController.create(user));
         assertTrue(exception.getMessage().contains("Логин не может быть пустым и содержать пробелы"));
     }
+
     @Test
     void createWithFutureBirthdayThrowsValidationException() {
         User user = new User();
@@ -76,6 +80,7 @@ public class UserControllerTest {
         ValidationException exception = assertThrows(ValidationException.class, () -> userController.create(user));
         assertTrue(exception.getMessage().contains("Дата рождения не может быть в будущем"));
     }
+
     @Test
     void updateUserWithValidDataReturnsUpdatedUser() {
         User user = new User();
