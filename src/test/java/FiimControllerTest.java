@@ -31,7 +31,7 @@ public class FiimControllerTest {
     void addFilmWithLongDescriptionThrowsValidationException() {
         Film film = new Film();
         film.setName("Гарри Поттер");
-        film.setDescription("Очень очень очень очень очень очень очень очень очень очень очень очень очень очень очень очень очень очень очень очень очень очень очень очень очень очень очень очень очень очень много символов, должно быть больше 200");
+        film.setDescription("1".repeat(201));
         film.setReleaseDate(LocalDate.of(2010, 7, 16));
         film.setDuration(148);
         ValidationException exception = assertThrows(ValidationException.class, () -> filmController.addFilm(film));
