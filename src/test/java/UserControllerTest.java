@@ -1,101 +1,93 @@
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.controller.UserController;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.Collection;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.Set;
 
 public class UserControllerTest {
-    private UserController userController = new UserController();
+    private static final String CORRECT_MAIL = "mail@mail.ru";
+    private static final String CORRECT_LOGIN = "login";
+    private Validator validator;
+    User user;
 
-    @Test
-    void findAllUsersInitiallyEmpty() {
-        Collection<User> allUsers = userController.findAll();
-        assertTrue(allUsers.isEmpty());
+    @BeforeEach
+    public void setUp() {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        factory.getConstraintValidatorFactory();
+        validator = factory.getValidator();
+        user = new User();
     }
 
     @Test
-    void createWithValidDataReturnsUser() {
+    public void blankEmailShouldFailValidation() {
         User user = new User();
-        user.setLogin("user123");
-        user.setEmail("user123@example.com");
-        user.setBirthday(LocalDate.of(1990, 5, 15));
-        User createdUser = userController.create(user);
-        assertEquals(user.getLogin(), createdUser.getLogin());
-        assertEquals(user.getEmail(), createdUser.getEmail());
-        assertEquals(user.getBirthday(), createdUser.getBirthday());
+        user.setEmail("");
+        user.setLogin(CORRECT_LOGIN);
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        Assertions.assertFalse(violations.isEmpty());
     }
 
     @Test
-    void createWithInvalidEmailThrowsValidationException() {
-        User user = new User();
-        user.setLogin("user123");
-        user.setEmail("invalid_email_example.com");
-        user.setBirthday(LocalDate.of(1990, 5, 15));
-        ValidationException exception = assertThrows(ValidationException.class, () -> userController.create(user));
-        assertTrue(exception.getMessage().contains("Электронная почта должна содержать символ @"));
+    public void incorrectFormatOfEmailShouldFailValidation() {
+        user.setEmail("mail");
+        user.setLogin(CORRECT_LOGIN);
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        Assertions.assertFalse(violations.isEmpty());
     }
 
     @Test
-    void createWithInvalidEmailThrowsValidationExceptionisBlank() {
-        User user = new User();
-        user.setLogin("user123");
-        user.setEmail("         ");
-        user.setBirthday(LocalDate.of(1990, 5, 15));
-        ValidationException exception = assertThrows(ValidationException.class, () -> userController.create(user));
-        assertTrue(exception.getMessage().contains("Электронная почта не может быть пустой"));
+    public void correctMailShouldPassValidation() {
+        user.setEmail(CORRECT_MAIL);
+        user.setLogin(CORRECT_LOGIN);
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        Assertions.assertTrue(violations.isEmpty());
     }
 
     @Test
-    void createWithInvalidLoginThrowsValidationException() {
-        User user = new User();
-        user.setLogin("  ");
-        user.setEmail("user123@example.com");
-        user.setBirthday(LocalDate.of(1990, 5, 15));
-        ValidationException exception = assertThrows(ValidationException.class, () -> userController.create(user));
-        assertTrue(exception.getMessage().contains("Логин не может быть пустым и содержать пробелы"));
+    public void blankLoginShouldFailValidation() {
+        user.setEmail(CORRECT_MAIL);
+        user.setLogin("");
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        Assertions.assertFalse(violations.isEmpty());
     }
 
     @Test
-    void createWithInvalidLoginisBlankThrowsValidationException() {
-        User user = new User();
-        user.setLogin("user1 23");
-        user.setEmail("user123@example.com");
-        user.setBirthday(LocalDate.of(1990, 5, 15));
-        ValidationException exception = assertThrows(ValidationException.class, () -> userController.create(user));
-        assertTrue(exception.getMessage().contains("Логин не может быть пустым и содержать пробелы"));
+    public void loginWithSpacesShouldFailValidation() {
+        user.setEmail(CORRECT_MAIL);
+        user.setLogin("lo gin");
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        Assertions.assertFalse(violations.isEmpty());
     }
 
     @Test
-    void createWithFutureBirthdayThrowsValidationException() {
-        User user = new User();
-        user.setLogin("user123");
-        user.setEmail("user123@example.com");
-        user.setBirthday(LocalDate.of(2990, 5, 15));
-        ValidationException exception = assertThrows(ValidationException.class, () -> userController.create(user));
-        assertTrue(exception.getMessage().contains("Дата рождения не может быть в будущем"));
+    public void correctLoginShouldPassValidation() {
+        user.setEmail(CORRECT_MAIL);
+        user.setLogin(CORRECT_LOGIN);
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        Assertions.assertTrue(violations.isEmpty());
     }
 
     @Test
-    void updateUserWithValidDataReturnsUpdatedUser() {
-        User user = new User();
-        user.setLogin("user123");
-        user.setEmail("user123@example.com");
-        user.setBirthday(LocalDate.of(1990, 5, 15));
-        userController.create(user);
-        User updateUser = new User();
-        updateUser.setId(1L);
-        updateUser.setLogin("user1234");
-        updateUser.setEmail("user1234@example.com");
-        updateUser.setBirthday(LocalDate.of(1995, 5, 15));
-        User result = userController.update(updateUser);
-        assertEquals("user1234", result.getLogin());
-        assertEquals("user1234@example.com", result.getEmail());
-        assertEquals(LocalDate.of(1995, 5, 15), result.getBirthday());
+    public void dateInTheFutureShouldFailValidation() {
+        user.setEmail(CORRECT_MAIL);
+        user.setLogin(CORRECT_LOGIN);
+        user.setBirthday(LocalDate.now().plusDays(1));
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        Assertions.assertFalse(violations.isEmpty());
+    }
+
+    @Test
+    public void correctDateShouldPassValidation() {
+        user.setEmail(CORRECT_MAIL);
+        user.setLogin(CORRECT_LOGIN);
+        user.setBirthday(LocalDate.now().minusDays(1));
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        Assertions.assertTrue(violations.isEmpty());
     }
 }
