@@ -21,7 +21,7 @@ public class Film {
     private LocalDate releaseDate;
     @Positive(message = "Продолжительность фильма должна быть положительным числом")
     private long duration;
-    Set<Long> likesFromUsers = new HashSet<>();
+    private Set<Long> likesFromUsers = new HashSet<>();
 
     public Long getPopularity() {
         return likesFromUsers.stream().count();

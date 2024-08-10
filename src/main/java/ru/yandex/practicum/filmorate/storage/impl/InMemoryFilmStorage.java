@@ -1,12 +1,10 @@
 package ru.yandex.practicum.filmorate.storage.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -16,37 +14,31 @@ import java.util.stream.Collectors;
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> filmsMap = new HashMap<>();
     private Long filmIdCounter = 1L;
-    @Autowired
-    private UserStorage userStorage;
 
     private Long getNextId() {
         return filmIdCounter++;
     }
 
-    public InMemoryFilmStorage(UserStorage userStorage) {
-        this.userStorage = userStorage;
-    }
-
     @Override
     public Film likeFilm(Long id, Long userId) {
-        if (filmsMap.containsKey(id) && userStorage.contains(userId)) {
+        if (filmsMap.containsKey(id)) {
             Set<Long> likes = filmsMap.get(id).getLikesFromUsers();
             likes.add(userId);
             filmsMap.get(id).setLikesFromUsers(likes);
             return filmsMap.get(id);
         }
-        throw new NotExistException(String.format("Пользователя с id %s или фильма с id %s не существует", id, userId));
+        throw new NotExistException(String.format("Фильма с id %s не существует", id));
     }
 
     @Override
     public Film deleteLike(Long id, Long userId) {
-        if (filmsMap.containsKey(id) && userStorage.contains(userId)) {
+        if (filmsMap.containsKey(id)) {
             Set<Long> likes = filmsMap.get(id).getLikesFromUsers();
             likes.remove(userId);
             filmsMap.get(id).setLikesFromUsers(likes);
             return filmsMap.get(id);
         }
-        throw new NotExistException(String.format("Пользователя с id %s или фильма с id %s не существует", id, userId));
+        throw new NotExistException(String.format("Фильма с id %s не существует", id));
     }
 
     @Override

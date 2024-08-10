@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
 
+@Slf4j
 @ControllerAdvice
 public class ErrorHandler {
     private final ObjectMapper objectMapper;
@@ -32,10 +34,10 @@ public class ErrorHandler {
         return errorToJson(ex.getMessage());
     }
 
-    @ExceptionHandler(Throwable.class)
+    @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    public String handleOtherExceptions(Throwable ex) throws JsonProcessingException {
+    public String handleOtherExceptions(Exception ex) throws JsonProcessingException {
         return errorToJson(ex.getMessage());
     }
 
