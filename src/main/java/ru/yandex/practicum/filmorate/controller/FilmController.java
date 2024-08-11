@@ -1,80 +1,51 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
+import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
-@Slf4j
+@AllArgsConstructor
 @RestController
-@RequestMapping("/films")
+@RequestMapping(value = "/films")
 public class FilmController {
-    private final Map<Long, Film> filmsMap = new HashMap<>();
-    private Long filmIdCounter = 1L;
-
-    private Long getNextId() {
-        return filmIdCounter++;
-    }
+    private final FilmService filmService;
 
     @GetMapping
-    public Collection<Film> findAll() {
-        return filmsMap.values();
+    public Collection<Film> getAllFilms() {
+        return filmService.getAll();
     }
 
     @PostMapping
-    public Film addFilm(@RequestBody Film film) {
-        if (film.getName() == null || film.getName().isBlank()) {
-            throw new ValidationException("Название фильма не может быть пустым");
-        }
-        if (film.getDescription().length() > 200) {
-            throw new ValidationException("Максимальная длина описания — 200 символов");
-        }
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года");
-        }
-        if (film.getDuration() < 0) {
-            throw new ValidationException("Продолжительность фильма должна быть положительным числом");
-        }
-        Long filmId = getNextId();
-        film.setId(filmId);
-        filmsMap.put(filmId, film);
-        return film;
+    public Film createFilm(@RequestBody @Valid Film film) {
+        return filmService.create(film);
     }
 
     @PutMapping
-    public Film updateFilm(@RequestBody Film updateFilm) {
-        Long filmId = updateFilm.getId();
-        if (filmId == null) {
-            throw new ValidationException("Айди не может быть пустым");
-        }
-        Film storedFilm = filmsMap.get(filmId);
-        if (updateFilm.getName() != null) {
-            storedFilm.setName(updateFilm.getName());
-        }
-        if (updateFilm.getDescription() != null) {
-            if (updateFilm.getDescription().length() > 200) {
-                throw new ValidationException("Максимальная длина описания — 200 символов");
-            }
-            storedFilm.setDescription(updateFilm.getDescription());
-        }
-        if (updateFilm.getReleaseDate() != null) {
-            if (updateFilm.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-                throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года");
-            }
-            storedFilm.setReleaseDate(updateFilm.getReleaseDate());
-        }
-        if (updateFilm.getDuration() != 0) {
-            if (updateFilm.getDuration() < 0) {
-                throw new ValidationException("Продолжительность фильма должна быть положительным числом");
-            }
-            storedFilm.setDuration(updateFilm.getDuration());
-        }
-        return storedFilm;
+    public Film updateFilm(@RequestBody @Valid Film film) {
+        return filmService.update(film);
     }
 
+    @GetMapping("/{id}")
+    public Film getFilm(@PathVariable Long id) {
+        return filmService.get(id);
+    }
+
+    @PutMapping("{id}/like/{userId}")
+    public Film likeFilm(@PathVariable Long id, @PathVariable Long userId) {
+        return filmService.likeFilm(id, userId);
+    }
+
+    @DeleteMapping("{id}/like/{userId}")
+    public Film deleteLike(@PathVariable Long id, @PathVariable Long userId) {
+        return filmService.deleteLike(id, userId);
+    }
+
+    @GetMapping("/popular")
+    public Collection<Film> getPopular(@RequestParam(defaultValue = "10") Long count) {
+        return filmService.getPopular(count);
+    }
 }

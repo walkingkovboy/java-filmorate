@@ -1,80 +1,91 @@
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.controller.FilmController;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
-import java.util.Collection;
-
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Set;
 
 public class FiimControllerTest {
-    private FilmController filmController = new FilmController();
+    private static final String CORRECT_MAIL = "mail@mail.ru";
+    private static final String CORRECT_LOGIN = "login";
+    private Validator validator;
+    Film film;
 
-    @Test
-    void findAllFilmsInitiallyEmpty() {
-        Collection<Film> allFilms = filmController.findAll();
-        assertTrue(allFilms.isEmpty());
+    @BeforeEach
+    public void setUp() {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        factory.getConstraintValidatorFactory();
+        validator = factory.getValidator();
+        film = new Film();
     }
 
     @Test
-    void addFilmWithInvalidNameThrowsValidationException() {
-        Film film = new Film();
-        film.setDescription("Описание фильма");
-        film.setReleaseDate(LocalDate.of(2010, 7, 16));
-        film.setDuration(148);
-        ValidationException exception = assertThrows(ValidationException.class, () -> filmController.addFilm(film));
-        assertTrue(exception.getMessage().contains("Название фильма не может быть пустым"));
+    public void blankNameShouldFailValidation() {
+        film.setName("");
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        Assertions.assertFalse(violations.isEmpty());
     }
 
     @Test
-    void addFilmWithLongDescriptionThrowsValidationException() {
-        Film film = new Film();
+    public void correctNameShouldPassValidation() {
+        film.setName("Гарри Поттер");
+        film.setDuration(130);
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        Assertions.assertTrue(violations.isEmpty());
+    }
+
+    @Test
+    public void descriptionMore200SymboldShouldFailValidation() {
         film.setName("Гарри Поттер");
         film.setDescription("1".repeat(201));
-        film.setReleaseDate(LocalDate.of(2010, 7, 16));
-        film.setDuration(148);
-        ValidationException exception = assertThrows(ValidationException.class, () -> filmController.addFilm(film));
-        assertTrue(exception.getMessage().contains("Максимальная длина описания — 200 символов"));
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        Assertions.assertFalse(violations.isEmpty());
     }
 
     @Test
-    void addFilmWithNegativeDurationThrowsValidationException() {
-        Film film = new Film();
+    public void dateBefor28December1895ShouldFailValidation() {
         film.setName("Гарри Поттер");
-        film.setDescription("Описание фильма");
-        film.setReleaseDate(LocalDate.of(2010, 7, 16));
-        film.setDuration(-148);
-        ValidationException exception = assertThrows(ValidationException.class, () -> filmController.addFilm(film));
-        assertTrue(exception.getMessage().contains("Продолжительность фильма должна быть положительным числом"));
+        film.setReleaseDate(LocalDate.of(1800, 1, 1));
+        film.setDuration(130);
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        Assertions.assertFalse(violations.isEmpty());
     }
 
     @Test
-    void updateFilmWithoutIdThrowsValidationException() {
-        Film film = new Film();
+    public void correctDateShouldPassValidation() {
         film.setName("Гарри Поттер");
-        ValidationException exception = assertThrows(ValidationException.class, () -> filmController.updateFilm(film));
-        assertTrue(exception.getMessage().contains("Айди не может быть пустым"));
+        film.setReleaseDate(LocalDate.of(1988, 12, 25));
+        film.setDuration(130);
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        Assertions.assertTrue(violations.isEmpty());
     }
 
     @Test
-    void updateFilmWithValidDataReturnsUpdatedFilm() {
-        Film existingFilm = new Film();
-        existingFilm.setName("Гарри Поттер");
-        existingFilm.setDescription("Описание фильма");
-        existingFilm.setReleaseDate(LocalDate.of(2010, 7, 16));
-        existingFilm.setDuration(148);
-        filmController.addFilm(existingFilm);
-        Film updatedFilm = new Film();
-        updatedFilm.setId(1L);
-        updatedFilm.setName("Гарри Поттер 2");
-        updatedFilm.setDescription("Новое описание фильма");
-        updatedFilm.setReleaseDate(LocalDate.of(2010, 7, 16));
-        updatedFilm.setDuration(160);
-        Film result = filmController.updateFilm(updatedFilm);
-        assertEquals("Гарри Поттер 2", result.getName());
-        assertEquals("Новое описание фильма", result.getDescription());
-        assertEquals(LocalDate.of(2010, 7, 16), result.getReleaseDate());
-        assertEquals(160, result.getDuration());
+    public void negativeDurationShouldFailValidation() {
+        film.setName("Гарри Поттер");
+        film.setDuration(-10);
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        Assertions.assertFalse(violations.isEmpty());
+    }
+
+    @Test
+    public void zeroDurationShouldFailValidation() {
+        film.setName("Гарри Поттер");
+        film.setDuration(0);
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        Assertions.assertFalse(violations.isEmpty());
+    }
+
+    @Test
+    public void positiveDurationShouldPassValidation() {
+        film.setName("Гарри Поттер");
+        film.setDuration(100);
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        Assertions.assertTrue(violations.isEmpty());
     }
 }
