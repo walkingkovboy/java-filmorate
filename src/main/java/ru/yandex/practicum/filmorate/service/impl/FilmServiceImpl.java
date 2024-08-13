@@ -1,43 +1,32 @@
 package ru.yandex.practicum.filmorate.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class FilmServiceImpl implements FilmService {
-    private FilmStorage filmStorage;
-    private UserStorage userStorage;
-
     @Autowired
-    public FilmServiceImpl(FilmStorage filmStorage, UserStorage userStorage) {
+    @Qualifier("filmDbStorage")
+    private FilmStorage filmStorage;
+    @Autowired
+    @Qualifier("likeDbStorage")
+    private LikeStorage likeStorage;
+
+    public FilmServiceImpl(FilmStorage filmStorage) {
 
         this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
-    }
-
-    @Override
-    public Film likeFilm(Long id, Long userId) {
-        if (userStorage.contains(userId)) {
-            return filmStorage.likeFilm(id, userId);
-        } else {
-            throw new NotExistException(String.format("Пользователя с id %s не существует. ", userId));
-        }
-    }
-
-    @Override
-    public Film deleteLike(Long id, Long userId) {
-        if (userStorage.contains(userId)) {
-            return filmStorage.deleteLike(id, userId);
-        } else {
-            throw new NotExistException(String.format("Пользователя с id %s не существует. ", userId));
-        }
     }
 
     @Override
@@ -52,11 +41,13 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film create(Film film) {
+        film.setGenres(film.getGenres().stream().distinct().collect(Collectors.toList()));
         return filmStorage.add(film);
     }
 
     @Override
     public Film update(Film film) {
+        film.setGenres(film.getGenres().stream().distinct().collect(Collectors.toList()));
         return filmStorage.update(film);
     }
 

@@ -1,3 +1,5 @@
+package ru.yandex.practicum.filmorate;
+
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -34,7 +36,7 @@ public class FiimControllerTest {
     @Test
     public void correctNameShouldPassValidation() {
         film.setName("Гарри Поттер");
-        film.setDuration(130);
+        film.setDuration(130L);
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
         Assertions.assertTrue(violations.isEmpty());
     }
@@ -51,7 +53,7 @@ public class FiimControllerTest {
     public void dateBefor28December1895ShouldFailValidation() {
         film.setName("Гарри Поттер");
         film.setReleaseDate(LocalDate.of(1800, 1, 1));
-        film.setDuration(130);
+        film.setDuration(130L);
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
         Assertions.assertFalse(violations.isEmpty());
     }
@@ -60,7 +62,7 @@ public class FiimControllerTest {
     public void correctDateShouldPassValidation() {
         film.setName("Гарри Поттер");
         film.setReleaseDate(LocalDate.of(1988, 12, 25));
-        film.setDuration(130);
+        film.setDuration(130L);
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
         Assertions.assertTrue(violations.isEmpty());
     }
@@ -68,7 +70,7 @@ public class FiimControllerTest {
     @Test
     public void negativeDurationShouldFailValidation() {
         film.setName("Гарри Поттер");
-        film.setDuration(-10);
+        film.setDuration(-10L);
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
         Assertions.assertFalse(violations.isEmpty());
     }
@@ -76,7 +78,7 @@ public class FiimControllerTest {
     @Test
     public void zeroDurationShouldFailValidation() {
         film.setName("Гарри Поттер");
-        film.setDuration(0);
+        film.setDuration(0L);
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
         Assertions.assertFalse(violations.isEmpty());
     }
@@ -84,7 +86,7 @@ public class FiimControllerTest {
     @Test
     public void positiveDurationShouldPassValidation() {
         film.setName("Гарри Поттер");
-        film.setDuration(100);
+        film.setDuration(100L);
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
         Assertions.assertTrue(violations.isEmpty());
     }
