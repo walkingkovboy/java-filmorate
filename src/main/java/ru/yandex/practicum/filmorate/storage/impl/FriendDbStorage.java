@@ -21,15 +21,29 @@ public class FriendDbStorage implements FriendStorage {
 
     @Override
     public FriendRequest sendFriendRequest(Long userIdFrom, Long userIdTo) {
-        if (jdbcTemplate.update(SEND_FRIEND_REQUEST_QUERY, userIdFrom, userIdTo) > 0)
-            return new FriendRequest(userIdFrom, userIdTo, false);
-        throw new NotExistException("");
+        if (!userExists(userIdFrom) || !userExists(userIdTo)) {
+            throw new NotExistException("Один или оба пользователя не существуют.");
+        }
+        try {
+            jdbcTemplate.update(SEND_FRIEND_REQUEST_QUERY, userIdFrom, userIdTo);
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка при отправке запроса на дружбу: " + e.getMessage(), e);
+        }
+
+        return new FriendRequest(userIdFrom, userIdTo, false);
     }
 
     @Override
     public FriendRequest deleteFriendRequest(Long userIdFrom, Long userIdTo) {
-        if (jdbcTemplate.update(DELETE_FRIEND_REQUEST_QUERY, userIdFrom, userIdTo) > 0)
-            return new FriendRequest(userIdFrom, userIdTo, false);
-        throw new NotExistException(String.format(NO_SUCH_FRIEND_REQUEST_MESSAGE, userIdFrom, userIdTo));
+            if (jdbcTemplate.update(DELETE_FRIEND_REQUEST_QUERY, userIdFrom, userIdTo) > 0)
+                return new FriendRequest(userIdFrom, userIdTo, false);
+            throw new NotExistException(String.format(NO_SUCH_FRIEND_REQUEST_MESSAGE, userIdFrom, userIdTo));
+
     }
+
+    private boolean userExists(Long userId) {
+        String checkUserQuery = "select count(*) from users where user_id = ?";
+        return jdbcTemplate.queryForObject(checkUserQuery, new Object[]{userId}, Long.class) > 0;
+    }
+
 }

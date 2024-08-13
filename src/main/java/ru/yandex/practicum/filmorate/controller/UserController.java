@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.model.FriendRequest;
@@ -45,11 +46,11 @@ public class UserController {
 
     @DeleteMapping("/{id}/friends/{friendId}")
     public FriendRequest deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
-        return friendService.deleteFriend(id, friendId);
+            return friendService.deleteFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
-    public Collection<User> getFriends(@PathVariable Long id) {
+    public Collection<User> getFriends(@PathVariable  Long id)  {
         return userService.getFriends(id);
     }
 

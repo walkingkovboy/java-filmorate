@@ -19,6 +19,7 @@ public class FriendServiceImpl implements FriendService {
 
     @Override
     public FriendRequest deleteFriend(Long userIdFrom, Long userIdTo) {
-        return friendStorage.deleteFriendRequest(userIdFrom, userIdTo);
+         friendStorage.deleteFriendRequest(userIdFrom, userIdTo);
+        return null;
     }
 }

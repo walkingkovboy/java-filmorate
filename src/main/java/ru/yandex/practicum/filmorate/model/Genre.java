@@ -9,6 +9,6 @@ import lombok.*;
 public class Genre {
     private Long id;
     @EqualsAndHashCode.Exclude
-    String name;
+    private String name;
 
 }

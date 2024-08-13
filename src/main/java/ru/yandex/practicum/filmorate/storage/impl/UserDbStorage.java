@@ -49,7 +49,11 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Collection<User> getFriends(Long id) {
-        return jdbcTemplate.query(GET_FRIENDS_QUERY, (rs, rowNum) -> makeUser(rs), id);
+        List<User> users = jdbcTemplate.query(GET_USER_QUERY, (rs, rowNum) -> makeUser(rs), id);
+        if (!users.isEmpty()) {
+            return jdbcTemplate.query(GET_FRIENDS_QUERY, (rs, rowNum) -> makeUser(rs), id);
+        }
+        throw new NotExistException(String.format("Пользователя с id %s не существует", id));
     }
 
     @Override
