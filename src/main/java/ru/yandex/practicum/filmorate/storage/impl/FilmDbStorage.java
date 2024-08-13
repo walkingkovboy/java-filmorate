@@ -40,14 +40,11 @@ public class FilmDbStorage implements FilmStorage {
     private static final String GET_ALL_FILMS_QUERY = "select * from films " +
             "inner join ratings r on r.rating_id = films.rating_id";
     private static final String FILM_NOT_EXIST_MESSAGE = "Фильма с id %s не существует";
-    private static final String GET_POPULAR_FILMS_QUERY = "select * " +
-            "from films f " +
-            "left join likes l ON l.film_id = f.film_id " +
-            "left join ratings r on r.rating_id = f.rating_id " +
-            "left join film_category fc on fc.film_id = f.film_id " +
-            "left join genres g on g.genre_id = fc.genre_id " +
-            "group by f.film_id " +
-            "order by count(l.user_id) desc";
+
+    private static final String GET_POPULAR_FILMS_QUERY = "SELECT f.film_id AS film_id, f.name AS name, f.description AS description, " +
+            "f.release_date AS release_date, f.duration AS duration, f.rating_id AS rating_id, r.rating_name AS rating_name, " +
+            "COUNT(l.user_id) AS popularity FROM films f LEFT JOIN likes l ON l.film_id = f.film_id " +
+            "JOIN ratings r ON r.rating_id = f.rating_id GROUP BY film_id, name, description, rating_id, rating_name ORDER BY popularity DESC ";
 
     private static final String INSERT_FILM_GENRES = "insert into film_category(film_id, genre_id) values (?,?)";
     private static final String DELETE_FILM_GENRES = "delete from film_category where film_id = ?";

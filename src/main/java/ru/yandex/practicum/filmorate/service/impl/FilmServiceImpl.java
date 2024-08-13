@@ -4,10 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotValidRequest;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.LikeStorage;
+import ru.yandex.practicum.filmorate.storage.RatingStorage;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -21,6 +24,12 @@ public class FilmServiceImpl implements FilmService {
     @Autowired
     @Qualifier("likeDbStorage")
     private LikeStorage likeStorage;
+    @Autowired
+    @Qualifier("ratingDbStorage")
+    private RatingStorage ratingStorage;
+    @Autowired
+    @Qualifier("genreDbStorage")
+    private GenreStorage genreStorage;
 
     public FilmServiceImpl(FilmStorage filmStorage) {
 
@@ -39,6 +48,21 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film create(Film film) {
+        if (film.getMpa() != null) {
+            try {
+                ratingStorage.get(film.getMpa().getId());
+            } catch (Exception e) {
+                throw new NotValidRequest("Rating Id not exist");
+            }
+        }
+        if (film.getGenres() != null) {
+            try {
+                film.getGenres().stream()
+                        .forEach(genre -> genreStorage.get(genre.getId()));
+            } catch (Exception e) {
+                throw new NotValidRequest("Genre Id not exist");
+            }
+        }
         film.setGenres(film.getGenres().stream().distinct().collect(Collectors.toList()));
         return filmStorage.add(film);
     }
