@@ -22,6 +22,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Autowired
     @Qualifier("userDbStorage")
     private UserStorage userStorage;
+
     private Long getNextId() {
         return filmIdCounter++;
     }
