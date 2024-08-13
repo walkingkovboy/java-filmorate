@@ -20,6 +20,7 @@ public class ErrorHandler {
     public ErrorHandler(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody

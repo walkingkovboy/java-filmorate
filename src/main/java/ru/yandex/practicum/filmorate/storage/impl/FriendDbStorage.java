@@ -35,9 +35,9 @@ public class FriendDbStorage implements FriendStorage {
 
     @Override
     public FriendRequest deleteFriendRequest(Long userIdFrom, Long userIdTo) {
-            if (jdbcTemplate.update(DELETE_FRIEND_REQUEST_QUERY, userIdFrom, userIdTo) > 0)
-                return new FriendRequest(userIdFrom, userIdTo, false);
-            throw new NotExistException(String.format(NO_SUCH_FRIEND_REQUEST_MESSAGE, userIdFrom, userIdTo));
+        if (jdbcTemplate.update(DELETE_FRIEND_REQUEST_QUERY, userIdFrom, userIdTo) > 0)
+            return new FriendRequest(userIdFrom, userIdTo, false);
+        throw new NotExistException(String.format(NO_SUCH_FRIEND_REQUEST_MESSAGE, userIdFrom, userIdTo));
 
     }
 
