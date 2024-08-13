@@ -25,6 +25,7 @@ public class User {
     @Past(message = "Дата рождения не может быть в будущем")
     private LocalDate birthday;
     private Set<Long> friends = new HashSet<>();
+
     public User(Long id, String email, String login, String name, LocalDate birthday) {
         this.id = id;
         this.email = email;

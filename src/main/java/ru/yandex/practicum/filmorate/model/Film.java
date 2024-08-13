@@ -36,6 +36,7 @@ public class Film {
         this.releaseDate = releaseDate;
         this.duration = duration;
     }
+
     public Long getPopularity() {
         return likesFromUsers.stream().count();
     }
