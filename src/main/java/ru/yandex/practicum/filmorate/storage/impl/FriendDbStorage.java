@@ -40,7 +40,6 @@ public class FriendDbStorage implements FriendStorage {
         throw new NotExistException(String.format(NO_SUCH_FRIEND_REQUEST_MESSAGE, userIdFrom, userIdTo));
 
     }
-
     private boolean userExists(Long userId) {
         String checkUserQuery = "select count(*) from users where user_id = ?";
         return jdbcTemplate.queryForObject(checkUserQuery, new Object[]{userId}, Long.class) > 0;
