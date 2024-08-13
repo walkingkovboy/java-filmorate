@@ -42,6 +42,7 @@ public class ErrorHandler {
     public String handleOtherExceptions(Exception ex) throws JsonProcessingException {
         return errorToJson(ex.getMessage());
     }
+
     @ExceptionHandler(NotValidRequest.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
