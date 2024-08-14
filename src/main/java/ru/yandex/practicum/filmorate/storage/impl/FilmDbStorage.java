@@ -17,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -94,9 +95,11 @@ public class FilmDbStorage implements FilmStorage {
             return statement;
         }, keyHolder);
         film.setId(keyHolder.getKey().longValue());
+        List<Object[]> batchArgs = new ArrayList<>();
         for (Genre genre : film.getGenres()) {
-            jdbcTemplate.update(INSERT_FILM_GENRES, film.getId(), genre.getId());
+            batchArgs.add(new Object[]{film.getId(), genre.getId()});
         }
+        jdbcTemplate.batchUpdate(INSERT_FILM_GENRES, batchArgs);
         return film;
     }
 
@@ -117,8 +120,11 @@ public class FilmDbStorage implements FilmStorage {
                 film.getMpa().getId(),
                 film.getId()) > 0) {
             jdbcTemplate.update(DELETE_FILM_GENRES, film.getId());
-            for (Genre genre : film.getGenres())
-                jdbcTemplate.update(INSERT_FILM_GENRES, film.getId(), genre.getId());
+            List<Object[]> batchArgs = new ArrayList<>();
+            for (Genre genre : film.getGenres()) {
+                batchArgs.add(new Object[]{film.getId(), genre.getId()});
+            }
+            jdbcTemplate.batchUpdate(INSERT_FILM_GENRES, batchArgs);
             return film;
         }
         throw new NotExistException(String.format(FILM_NOT_EXIST_MESSAGE, film.getId()));

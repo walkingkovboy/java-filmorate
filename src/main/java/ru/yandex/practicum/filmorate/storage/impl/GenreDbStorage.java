@@ -11,10 +11,12 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
 
 import java.sql.PreparedStatement;
+import java.util.Collections;
 import java.util.List;
 import java.util.Collection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -69,6 +71,16 @@ public class GenreDbStorage implements GenreStorage {
     public Boolean contains(Long id) {
         return null;
     }
+
+    @Override
+    public Boolean containsAll(Set<Long> ids) {
+        String query = "SELECT COUNT(*) FROM genres WHERE genre_id IN (";
+        String placeholders = String.join(",", Collections.nCopies(ids.size(), "?"));
+        query += placeholders + ")";
+        Integer count = jdbcTemplate.queryForObject(query, ids.toArray(new Object[0]), Integer.class);
+        return count != null && count.intValue() == ids.size();
+    }
+
 
     @Override
     public Collection<Genre> getAll() {

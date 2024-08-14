@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.exception.NotValidRequest;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -11,8 +12,11 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.RatingStorage;
+import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.Collection;
+
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,19 +55,20 @@ public class FilmServiceImpl implements FilmService {
         if (film.getMpa() != null) {
             try {
                 ratingStorage.get(film.getMpa().getId());
-            } catch (Exception e) {
-                throw new NotValidRequest("Rating Id not exist");
+            } catch (NotExistException exception) {
+                throw new NotValidRequest("Rating Id does not exist");
             }
         }
         if (film.getGenres() != null) {
-            try {
-                film.getGenres().stream()
-                        .forEach(genre -> genreStorage.get(genre.getId()));
-            } catch (Exception e) {
-                throw new NotValidRequest("Genre Id not exist");
+            Set<Long> genreIds = film.getGenres().stream()
+                    .map(Genre::getId)
+                    .collect(Collectors.toSet());
+
+            if (!genreStorage.containsAll(genreIds)) {
+                throw new NotValidRequest("One or more Genre Ids do not exist");
             }
+            film.setGenres(film.getGenres().stream().distinct().collect(Collectors.toList()));
         }
-        film.setGenres(film.getGenres().stream().distinct().collect(Collectors.toList()));
         return filmStorage.add(film);
     }
 
