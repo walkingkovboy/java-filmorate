@@ -4,7 +4,9 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
+import ru.yandex.practicum.filmorate.model.FriendRequest;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FriendService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
@@ -14,6 +16,7 @@ import java.util.Collection;
 @RequestMapping(value = "/users")
 public class UserController {
     private final UserService userService;
+    private final FriendService friendService;
 
     @GetMapping
     public Collection<User> getAllUsers() {
@@ -36,17 +39,17 @@ public class UserController {
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public User addFriend(@PathVariable Long id, @PathVariable Long friendId) {
-        return userService.addFriend(id, friendId);
+    public FriendRequest addFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        return friendService.addFriend(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public User deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
-        return userService.deleteFriend(id, friendId);
+    public FriendRequest deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
+            return friendService.deleteFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
-    public Collection<User> getFriends(@PathVariable Long id) {
+    public Collection<User> getFriends(@PathVariable  Long id)  {
         return userService.getFriends(id);
     }
 

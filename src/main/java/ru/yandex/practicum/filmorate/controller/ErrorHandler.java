@@ -10,10 +10,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
+import ru.yandex.practicum.filmorate.exception.NotValidRequest;
 
 @Slf4j
 @ControllerAdvice
 public class ErrorHandler {
+
     private final ObjectMapper objectMapper;
 
     public ErrorHandler(ObjectMapper objectMapper) {
@@ -38,6 +40,13 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public String handleOtherExceptions(Exception ex) throws JsonProcessingException {
+        return errorToJson(ex.getMessage());
+    }
+
+    @ExceptionHandler(NotValidRequest.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public String handleRequestValidationExceptions(NotValidRequest ex) throws JsonProcessingException {
         return errorToJson(ex.getMessage());
     }
 

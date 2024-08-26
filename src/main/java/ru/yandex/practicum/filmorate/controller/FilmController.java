@@ -4,7 +4,9 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Like;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.LikeService;
 
 import java.util.Collection;
 
@@ -13,6 +15,7 @@ import java.util.Collection;
 @RequestMapping(value = "/films")
 public class FilmController {
     private final FilmService filmService;
+    private final LikeService likeService;
 
     @GetMapping
     public Collection<Film> getAllFilms() {
@@ -35,13 +38,13 @@ public class FilmController {
     }
 
     @PutMapping("{id}/like/{userId}")
-    public Film likeFilm(@PathVariable Long id, @PathVariable Long userId) {
-        return filmService.likeFilm(id, userId);
+    public Like likeFilm(@PathVariable Long id, @PathVariable Long userId) {
+        return likeService.likeFilm(id, userId);
     }
 
     @DeleteMapping("{id}/like/{userId}")
-    public Film deleteLike(@PathVariable Long id, @PathVariable Long userId) {
-        return filmService.deleteLike(id, userId);
+    public Like deleteLike(@PathVariable Long id, @PathVariable Long userId) {
+        return likeService.deleteLike(id, userId);
     }
 
     @GetMapping("/popular")

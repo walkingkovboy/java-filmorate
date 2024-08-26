@@ -20,7 +20,6 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
 
-    @Override
     public User addFriend(Long id, Long friendId) {
         if (usersMap.containsKey(id) && usersMap.containsKey(friendId)) {
             Set<Long> friends = usersMap.get(id).getFriends();
@@ -34,7 +33,6 @@ public class InMemoryUserStorage implements UserStorage {
         throw new NotExistException(String.format("Пользователя с id {} или {} не существует", id, friendId));
     }
 
-    @Override
     public User deleteFriend(Long id, Long friendId) {
         if (usersMap.containsKey(id) && usersMap.containsKey(friendId)) {
             Set<Long> friends = usersMap.get(id).getFriends();

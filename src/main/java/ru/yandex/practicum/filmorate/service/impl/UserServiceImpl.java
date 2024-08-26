@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -9,23 +11,11 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import java.util.Collection;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     @Autowired
+    @Qualifier(value = "userDbStorage")
     private UserStorage userStorage;
-
-    public UserServiceImpl(UserStorage userStorage) {
-        this.userStorage = userStorage;
-    }
-
-    @Override
-    public User addFriend(Long id, Long friendId) {
-        return userStorage.addFriend(id, friendId);
-    }
-
-    @Override
-    public User deleteFriend(Long id, Long friendId) {
-        return userStorage.deleteFriend(id, friendId);
-    }
 
     @Override
     public Collection<User> getFriends(Long id) {
@@ -35,11 +25,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public Collection<User> getCommonFriends(Long id, Long otherId) {
         return userStorage.getCommonFriends(id, otherId);
-    }
-
-    @Override
-    public Boolean contains(Long id) {
-        return userStorage.contains(id);
     }
 
     @Override
